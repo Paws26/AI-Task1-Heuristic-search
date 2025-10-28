@@ -24,8 +24,9 @@ class Node:
         return self.f_cost < other.f_cost
 
 # Generate a specified amount of puzzle nodes
-def generate_puzzle_nodes(amount, heuristic_function):
-    puzzle_nodes_start = []
+def generate_puzzle_nodes(amount):
+    puzzle_nodes_manhattan = []
+    puzzle_nodes_hamming = []
     while amount > 0:
         new_state = []
         nums = random.sample(range(0,9), 9)
@@ -34,13 +35,20 @@ def generate_puzzle_nodes(amount, heuristic_function):
         # Try again if state is not solvable
         if not check_for_solvability(new_state):
             continue
-        new_node = Node(puzzle_state=new_state,
+        new_node_man = Node(puzzle_state=new_state,
                         parent=None,
                         g_cost=0,
-                        h_cost=heuristic_function(new_state))
-        puzzle_nodes_start.append(new_node)
+                        h_cost=get_heuristic_value_manhattan(new_state))
+
+        new_node_ham = Node(puzzle_state=new_state,
+                        parent=None,
+                        g_cost=0,
+                        h_cost=get_heuristic_value_hamming(new_state))
+
+        puzzle_nodes_manhattan.append(new_node_man)
+        puzzle_nodes_hamming.append(new_node_ham)
         amount -= 1
-    return puzzle_nodes_start
+    return puzzle_nodes_manhattan, puzzle_nodes_hamming
 
 # Confirm solvability of a puzzle state
 def check_for_solvability(start_state):
@@ -65,7 +73,7 @@ def check_for_solvability(start_state):
 
 
 ### Heuristic 1: Manhattan Distance
-def get_heuristic_value_manhatten(puzzle_state):
+def get_heuristic_value_manhattan(puzzle_state):
     distance = 0
     for x in range(3):
         for y in range(3):
@@ -162,20 +170,18 @@ def solve_puzzle(node, heuristic_function):
     return None, expanded_nodes
 
 # Compare two heuristics on 100 puzzle states
-puzzle_nodes_manhatten = generate_puzzle_nodes(100, get_heuristic_value_manhatten)
-puzzle_nodes_hamming = generate_puzzle_nodes(100, get_heuristic_value_hamming)
+puzzle_nodes_manhattan, puzzle_nodes_hamming = generate_puzzle_nodes(100)
 results = {"manhattan": [], "hamming": []}
 
-for heuristic_function, name in [(get_heuristic_value_manhatten, "manhattan"),
-                             (get_heuristic_value_hamming, "hamming")]:
+for name in ["manhattan", "hamming"]:
     print(f"\nRunning A* with {name} heuristic...")
     expanded_counts = []
     start_time = time.time()
     puzzle_number = 1
 
     if name == "manhattan":
-        for puzzle_node in puzzle_nodes_manhatten:
-            result = solve_puzzle(puzzle_node, get_heuristic_value_manhatten)
+        for puzzle_node in puzzle_nodes_manhattan:
+            result = solve_puzzle(puzzle_node, get_heuristic_value_manhattan)
             num_of_expanded_nodes = result[1]
             expanded_counts.append(num_of_expanded_nodes)
             print(f"  Puzzle {puzzle_number} solved ({num_of_expanded_nodes} nodes expanded)")
