@@ -167,7 +167,7 @@ results = {"manhattan": [], "hamming": []}
 
 for heuristic_function, name in [(get_heuristic_value_manhatten, "manhattan"),
                              (get_heuristic_value_hamming, "hamming")]:
-    print(f"Running A* with {name} heuristic...")
+    print(f"\nRunning A* with {name} heuristic...")
     expanded_counts = []
     start_time = time.time()
     puzzle_number = 1
@@ -195,4 +195,3 @@ print(f"{'Heuristic':<12} {'Mean Nodes':<15} {'StdDev':<10} {'Total Time (s)':<1
 print("-" * 55)
 for key, val in results.items():
     print(f"{key:<12} {val['mean_nodes']:<15.2f} {val['stdev_nodes']:<10.2f} {val['total_time']:<15.2f}")
-
