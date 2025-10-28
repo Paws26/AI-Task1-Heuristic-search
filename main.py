@@ -24,7 +24,7 @@ class Node:
         return self.f_cost < other.f_cost
 
 # Generate a specified amount of puzzle nodes
-def generate_puzzle_nodes(amount):
+def generate_puzzle_nodes(amount, heuristic_function):
     puzzle_nodes_start = []
     while amount > 0:
         new_state = []
@@ -37,7 +37,7 @@ def generate_puzzle_nodes(amount):
         new_node = Node(puzzle_state=new_state,
                         parent=None,
                         g_cost=0,
-                        h_cost=get_heuristic_value_manhatten(new_state))
+                        h_cost=heuristic_function(new_state))
         puzzle_nodes_start.append(new_node)
         amount -= 1
     return puzzle_nodes_start
@@ -162,7 +162,8 @@ def solve_puzzle(node, heuristic_function):
     return None, expanded_nodes
 
 # Compare two heuristics on 100 puzzle states
-puzzle_nodes = generate_puzzle_nodes(100)
+puzzle_nodes_manhatten = generate_puzzle_nodes(100, get_heuristic_value_manhatten)
+puzzle_nodes_hamming = generate_puzzle_nodes(100, get_heuristic_value_hamming)
 results = {"manhattan": [], "hamming": []}
 
 for heuristic_function, name in [(get_heuristic_value_manhatten, "manhattan"),
@@ -172,12 +173,20 @@ for heuristic_function, name in [(get_heuristic_value_manhatten, "manhattan"),
     start_time = time.time()
     puzzle_number = 1
 
-    for puzzle_node in puzzle_nodes:
-        result = solve_puzzle(puzzle_node, heuristic_function)
-        num_of_expanded_nodes = result[1]
-        expanded_counts.append(num_of_expanded_nodes)
-        print(f"  Puzzle {puzzle_number} solved ({num_of_expanded_nodes} nodes expanded)")
-        puzzle_number += 1
+    if name == "manhattan":
+        for puzzle_node in puzzle_nodes_manhatten:
+            result = solve_puzzle(puzzle_node, get_heuristic_value_manhatten)
+            num_of_expanded_nodes = result[1]
+            expanded_counts.append(num_of_expanded_nodes)
+            print(f"  Puzzle {puzzle_number} solved ({num_of_expanded_nodes} nodes expanded)")
+            puzzle_number += 1
+    else:
+        for puzzle_node in puzzle_nodes_hamming:
+            result = solve_puzzle(puzzle_node, get_heuristic_value_hamming)
+            num_of_expanded_nodes = result[1]
+            expanded_counts.append(num_of_expanded_nodes)
+            print(f"  Puzzle {puzzle_number} solved ({num_of_expanded_nodes} nodes expanded)")
+            puzzle_number += 1
 
     total_time = time.time() - start_time
     mean_expanded = statistics.mean(expanded_counts)
