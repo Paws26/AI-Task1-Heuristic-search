@@ -116,7 +116,7 @@ def get_next_nodes(node):
         new_y = blank_y + move_y
 
         if 0 <= new_x < 3 and 0 <= new_y < 3:
-            new_state = copy.deepcopy(puzzle_state)
+            new_state = [row[:] for row in puzzle_state]
             new_state[blank_x][blank_y] = new_state[new_x][new_y]
             new_state[new_x][new_y] = 0
             next_nodes.append(new_state)
